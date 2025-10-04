@@ -1,0 +1,130 @@
+{
+  "0": {
+    "id": "1751507466598",
+    "nombre": "isaac",
+    "email": "pokeranimu@gmail.com",
+    "contrasena": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "fechaCreacion": "2025-07-03T01:51:06.599Z",
+    "activo": true
+  },
+  "test@test.com": {
+    "id": 1,
+    "nombre": "Usuario de Prueba",
+    "email": "test@test.com",
+    "password": "$2b$10$Qb39aa.A2hMQv3BTzNoADu1TnsSz34J16V7KBXsKikd0tFtLLmgzO",
+    "fechaCreacion": "2025-07-03T07:24:15.715Z",
+    "activo": true
+  },
+  "pokeranimu@gmail.com": {
+    "id": 3,
+    "nombre": "isaac",
+    "email": "pokeranimu@gmail.com",
+    "password": "$2b$10$9FQomkiqwwC0wUdf0qshxu.KkPN9zELC8Ga0/PwoI11z6hAbqDv6W",
+    "fechaCreacion": "2025-07-03T07:24:29.405Z",
+    "activo": true
+  },
+  "andreycor44@gmail.com": {
+    "id": 4,
+    "nombre": "Agian",
+    "email": "andreycor44@gmail.com",
+    "password": "$2b$10$hasqrVSuqANom3Ky6.yPveMw2hTVlfX6ujNlVmzeq7YTgifSA8iym",
+    "fechaCreacion": "2025-09-22T16:38:35.902Z",
+    "activo": true
+  },
+  "odoo@gmail.com": {
+    "id": 5,
+    "nombre": "Odoo",
+    "email": "odoo@gmail.com",
+    "password": "$2b$10$WfZiXY251CINzPvjm4tB.OsnEavdRGt/v82UBOltx6lx/nzST2WmO",
+    "fechaCreacion": "2025-10-04T02:31:09.827Z",
+    "activo": true
+  },
+  "odododo@gmail.com": {
+    "id": 6,
+    "nombre": "Odoo2",
+    "email": "odododo@gmail.com",
+    "password": "$2b$10$sjSFxS/26EkVaHcqpCSuDun7ut3LdzCyb0AHliKjVgIzSVZXtCYu2",
+    "fechaCreacion": "2025-10-04T02:47:26.554Z",
+    "activo": true
+  },
+  "meestoyvolviendoloco@gmail.com": {
+    "id": 7,
+    "nombre": "Cruzuzuzuz",
+    "email": "meestoyvolviendoloco@gmail.com",
+    "password": "$2b$10$1SYHNclsILWgKGDarMOIxekSoTucrAwqjMX/4kNmb/08EdgtXEwKG",
+    "fechaCreacion": "2025-10-04T02:52:07.028Z",
+    "activo": true
+  },
+  "asdffggds@gmail.com": {
+    "id": 8,
+    "nombre": "Cruz",
+    "email": "asdffggds@gmail.com",
+    "password": "$2b$10$miV/m8EBn0EQGpQ1Bv/F8O.qz.nh8v6jQ5h0AOU4tciw7WZzujW0W",
+    "fechaCreacion": "2025-10-04T03:05:37.983Z",
+    "activo": true
+  },
+  "osos@gmail.com": {
+    "id": 9,
+    "nombre": "Podos",
+    "email": "osos@gmail.com",
+    "password": "$2b$10$CTjYRkh9JkbrtzXGLKBX2.OMZmPef1eb5N/IgFPD6/Yzan.2VfSi.",
+    "fechaCreacion": "2025-10-04T03:09:23.925Z",
+    "activo": true
+  },
+  "assd@gmail.com": {
+    "id": 10,
+    "nombre": "AyudaDios",
+    "email": "assd@gmail.com",
+    "password": "$2b$10$r5Xo9uZ8voF5Sko0YIpLMOWGFxfwOdPIl8miSzucd0qx2f05/gc6e",
+    "fechaCreacion": "2025-10-04T03:23:46.664Z",
+    "activo": true
+  },
+  "qwwr@gmail.com": {
+    "id": 11,
+    "nombre": "qwerty",
+    "email": "qwwr@gmail.com",
+    "password": "$2b$10$IkAvxDI3e7s7DYDqoOO.UOLZ3fo.jU1xV6KQjNxdbRVMDkTa08aIu",
+    "fechaCreacion": "2025-10-04T03:33:30.324Z",
+    "activo": true
+  },
+  "asdasd@gmail.com": {
+    "id": 12,
+    "nombre": "alo",
+    "email": "asdasd@gmail.com",
+    "password": "$2b$10$FS.2eC.KnDhDMojxf6t0d.Pji/kEqZ.CueL5dv/fHDR7lLocJNMcu",
+    "fechaCreacion": "2025-10-04T03:36:48.692Z",
+    "activo": true
+  },
+  "z@gmail.com": {
+    "id": 13,
+    "nombre": "z1",
+    "email": "z@gmail.com",
+    "password": "$2b$10$bcZ10pHowTZlOzyukP2zjOxw8S8Y./ccj8SDgxovp2uCPIwaYqgbi",
+    "fechaCreacion": "2025-10-04T03:42:38.090Z",
+    "activo": true
+  },
+  "ah@gmail.com": {
+    "id": 14,
+    "nombre": "Ahora",
+    "email": "ah@gmail.com",
+    "password": "$2b$10$GORSTIgIvZH8cjWzLmd0u.Om0SjEYWuTgAh08yuW6FFZprBfvCRku",
+    "fechaCreacion": "2025-10-04T03:53:42.286Z",
+    "activo": true
+  },
+  "lda@gmail.com": {
+    "id": 15,
+    "nombre": "LDA",
+    "email": "lda@gmail.com",
+    "password": "$2b$10$aB1A2HEFeRjzMLtU05Ynhue1g2IQXnRMb1u1ZFdLXbv4dynIvf7TK",
+    "fechaCreacion": "2025-10-04T03:55:48.422Z",
+    "activo": true
+  },
+  "esta@gmail.com": {
+    "id": 16,
+    "nombre": "EstaEs",
+    "email": "esta@gmail.com",
+    "password": "$2b$10$gHPLyFnam7bNxqPQVPx5W.xr6eVocwPrCIfj7V4xs.MOtNkEEkwpO",
+    "fechaCreacion": "2025-10-04T04:03:42.423Z",
+    "activo": true
+  }
+}
