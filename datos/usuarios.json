@@ -126,5 +126,13 @@
     "password": "$2b$10$gHPLyFnam7bNxqPQVPx5W.xr6eVocwPrCIfj7V4xs.MOtNkEEkwpO",
     "fechaCreacion": "2025-10-04T04:03:42.423Z",
     "activo": true
+  },
+  "wendypt2004@gmail.com": {
+    "id": 17,
+    "nombre": "Gabriela Tenorio",
+    "email": "wendypt2004@gmail.com",
+    "password": "$2b$10$hrxmArEfSEso2odut8JS5efezs/Cz4DezfelKWRFzgi9xKEGxEIn6",
+    "fechaCreacion": "2025-10-05T22:21:17.719Z",
+    "activo": true
   }
 }

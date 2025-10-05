@@ -214,7 +214,7 @@ class RutasAutenticacion {
         await this.transportadorEmail.sendMail({
           from: process.env.EMAIL_USER,
           to: email,
-          subject: "Recuperación de contraseña - Golfito Tours",
+          subject: "Recuperación de contraseña - Zenda Tours",
           html: `<p>Hola,</p><p>Has solicitado restablecer tu contraseña.</p><p><a href='${enlace}'>Restablecer contraseña</a></p>`,
         });
 
