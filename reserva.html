@@ -123,31 +123,6 @@
                             <label for="tourSeleccionado">Tour seleccionado *</label>
                             <select id="tourSeleccionado" name="tourSeleccionado" required>
                                 <option value="">Selecciona un tour</option>
-                                <optgroup label="Tours de Naturaleza">
-                                    <option value="Avistamiento de Delfines">Avistamiento de Delfines - $45</option>
-                                    <option value="Senderismo Nocturno">Senderismo Nocturno - $40</option>
-                                    <option value="Observación de Aves">Observación de Aves - $35</option>
-                                    <option value="Tour de Manglares">Tour de Manglares - $38</option>
-                                    <option value="Caminata al Bosque Nuboso">Caminata al Bosque Nuboso - $55</option>
-                                </optgroup>
-                                <optgroup label="Tours de Aventura">
-                                    <option value="Canopy Adventure">Canopy Adventure - $65</option>
-                                    <option value="Kayak en Manglares">Kayak en Manglares - $50</option>
-                                    <option value="Rappel en Cascadas">Rappel en Cascadas - $75</option>
-                                    <option value="Pesca Deportiva">Pesca Deportiva - $120</option>
-                                    <option value="Rafting Río Coto">Rafting Río Coto - $85</option>
-                                </optgroup>
-                                <optgroup label="Tours de Playas">
-                                    <option value="Playa Cacao">Playa Cacao - $35</option>
-                                    <option value="Playa Zancudo">Playa Zancudo - $40</option>
-                                    <option value="Playa Pavones - Surf">Playa Pavones - Surf - $55</option>
-                                    <option value="Playa Blanca - Refugio Golfito">Playa Blanca - Refugio Golfito - $45</option>
-                                </optgroup>
-                                <optgroup label="Tours de Historia">
-                                    <option value="Antigua Zona Americana de Golfito">Antigua Zona Americana - $25</option>
-                                    <option value="Museo de la Cultura Bananera">Museo de la Cultura Bananera - $20</option>
-                                    <option value="Ferrocarril Bananero">Ferrocarril Bananero - $30</option>
-                                </optgroup>
                             </select>
                             <div class="error-message" id="tourSeleccionadoError"></div>
                         </div>
@@ -296,5 +271,87 @@
 
     <script src="script.js"></script>
     <script src="auth-sistema.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const datosUsuario = localStorage.getItem("usuario_golfito");
+
+        if (datosUsuario) {
+            try {
+            const usuario = JSON.parse(datosUsuario);
+
+            // Rellenar nombre
+            const nombreInput = document.getElementById("nombreCompleto");
+            if (usuario.nombre && nombreInput) {
+                nombreInput.value = usuario.nombre;
+                nombreInput.readOnly = true; // Bloquea el campo
+            }
+
+            // Rellenar correo
+            const emailInput = document.getElementById("emailReserva");
+            if (usuario.email && emailInput) {
+                emailInput.value = usuario.email;
+                emailInput.readOnly = true; // Bloquea el campo
+            }
+
+            } catch (error) {
+            console.error("❌ Error al parsear usuario del localStorage:", error);
+            }
+        }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectTours = document.getElementById('tourSeleccionado');
+            if (!selectTours) return;
+
+            // Agrupamos tours por categoría
+            const grupos = {};
+            datosTours.forEach(tour => {
+                let catNombre = '';
+                switch(tour.categoria.toLowerCase()) {
+                    case 'naturaleza': catNombre = 'Tours de Naturaleza'; break;
+                    case 'aventura': catNombre = 'Tours de Aventura'; break;
+                    case 'playa': catNombre = 'Tours de Playas'; break;
+                    case 'historia': catNombre = 'Tours de Historia'; break;
+                    default: catNombre = 'Otros Tours'; break;
+                }
+                if (!grupos[catNombre]) grupos[catNombre] = [];
+                grupos[catNombre].push(tour);
+            });
+
+            // Limpiamos select excepto placeholder
+            const placeholder = selectTours.querySelector('option[value=""]')?.outerHTML || '<option value="">Selecciona un tour</option>';
+            selectTours.innerHTML = placeholder;
+
+            // Creamos optgroups y opciones
+            Object.keys(grupos).forEach(categoria => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = categoria;
+
+                grupos[categoria].forEach(tour => {
+                    const option = document.createElement('option');
+                    option.value = tour.nombre;
+                    option.textContent = `${tour.nombre} - ${tour.precio}`;
+                    optgroup.appendChild(option);
+                });
+
+                selectTours.appendChild(optgroup);
+            });
+
+            // PRESELECCIONAR TOUR DESDE URL
+            const params = new URLSearchParams(window.location.search);
+            const tourSeleccionado = params.get("tour");
+            if (tourSeleccionado) {
+                for (let i = 0; i < selectTours.options.length; i++) {
+                    if (selectTours.options[i].text.includes(tourSeleccionado)) {
+                        selectTours.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
+
+
 </body>
 </html>

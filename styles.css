@@ -1003,6 +1003,13 @@ section h2 {
 }
 
 /* Autenticación */
+input[readonly] {
+  background-color: #f0f0f0; /* gris suave */
+  color: #555;
+  cursor: not-allowed;
+}
+
+
 .auth-container {
   padding: 2rem;
 }
