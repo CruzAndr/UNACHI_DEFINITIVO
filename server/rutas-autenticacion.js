@@ -3,7 +3,7 @@ require("dotenv").config();
 const { fetch } = require("undici");
 
 // --- Configuración de Odoo ---
-const DB       = process.env.ODOO_DB;
+const DB = process.env.ODOO_DB;
 const USERNAME = process.env.ODOO_USER;
 const PASSWORD = process.env.ODOO_PASS;
 const ODOO_URL = process.env.ODOO_URL;
@@ -126,7 +126,7 @@ class RutasAutenticacion {
 
         console.log("✅ Registro exitoso");
 
-        // --- INTEGRACIÓN ODOO ---
+        // --- INTEGRACIÓN ODOO (Contactos + CRM) ---
         try {
           console.log("🔍 Iniciando integración con Odoo...");
 
@@ -176,7 +176,7 @@ class RutasAutenticacion {
         try {
           await this.transportadorEmail.sendMail({
             from: process.env.EMAIL_USER,
-            to: "info@assssa1.odoo.com", // cámbialo al correo que quieras usar en Odoo
+            to: "info@assssa1.odoo.com",
             subject: "Nuevo registro de usuario (Sitio Web)",
             html: `<h3>Nuevo usuario registrado</h3>
                    <ul>
@@ -201,7 +201,170 @@ class RutasAutenticacion {
     });
 
     // ============================
-    // Ruta para recuperación
+    // Nueva ruta: Crear cotización desde Reserva
+    // ============================
+ // ============================
+// Nueva ruta: Crear cotización desde Reserva
+// ============================
+this.app.post("/api/reserva", async (req, res) => {
+  try {
+    const {
+      nombreCompleto,
+      emailReserva,
+      telefonoReserva,
+      fechaTour,
+      tourSeleccionado,
+      numeroPersonas,
+      horarioPreferido,
+      comentariosReserva
+    } = req.body;
+
+    console.log("🧾 === CREAR COTIZACIÓN DESDE RESERVA ===");
+    console.log("📋 DATOS PREVIOS A COTIZACIÓN:", {
+      nombreCompleto,
+      emailReserva,
+      tourSeleccionado,
+      numeroPersonas
+    });
+
+    // ✅ Validación de campos
+    if (!nombreCompleto || !emailReserva || !tourSeleccionado) {
+      throw new Error(
+        `Faltan datos requeridos: ${
+          !nombreCompleto ? "nombre " : ""
+        }${!emailReserva ? "email " : ""}${!tourSeleccionado ? "productos" : ""}`
+      );
+    }
+
+    // ✅ Autenticación en Odoo
+    const uid = await jsonRpcCall("call", {
+      service: "common",
+      method: "login",
+      args: [DB, USERNAME, PASSWORD],
+    });
+
+    if (!uid) throw new Error("No se pudo autenticar en Odoo");
+    console.log("🔑 Autenticado en Odoo con UID:", uid);
+
+    // ✅ Buscar o crear cliente (res.partner) — usar kwargs en search_read
+    const partners = await jsonRpcCall("call", {
+      service: "object",
+      method: "execute_kw",
+      args: [
+        DB, uid, PASSWORD,
+        "res.partner", "search_read",
+        // args:
+        [[["email", "=", emailReserva]]],
+        // kwargs:
+        { fields: ["id", "name", "email"], limit: 1 }
+      ]
+    });
+
+    let partnerId;
+    if (partners.length > 0) {
+      partnerId = partners[0].id;
+      console.log("✅ Contacto existente encontrado:", partnerId);
+    } else {
+      partnerId = await jsonRpcCall("call", {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          DB, uid, PASSWORD,
+          "res.partner", "create",
+          [{ name: nombreCompleto, email: emailReserva, phone: telefonoReserva }]
+        ]
+      });
+      console.log("✅ Nuevo contacto creado:", partnerId);
+    }
+
+    // ✅ Buscar término de pago (opcional) — usar kwargs en search_read
+    let paymentTermId = null;
+    try {
+      const terms = await jsonRpcCall("call", {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          DB, uid, PASSWORD,
+          "account.payment.term", "search_read",
+          [[["name", "ilike", "Inmediato"]]],
+          { fields: ["id", "name"], limit: 1 }
+        ]
+      });
+      if (terms.length > 0) {
+        paymentTermId = terms[0].id;
+        console.log("✅ Término de pago encontrado:", terms[0].name);
+      } else {
+        console.warn("⚠️ No se encontró término de pago 'Inmediato'");
+      }
+    } catch (e) {
+      console.warn("⚠️ No se pudieron obtener términos de pago:", e.message);
+    }
+
+    // ✅ Crear cotización (sale.order)
+    const orderVals = {
+      partner_id: partnerId,
+      validity_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      note: `
+        Tour reservado: ${tourSeleccionado}
+        Fecha del tour: ${fechaTour}
+        Personas: ${numeroPersonas}
+        Horario preferido: ${horarioPreferido || "No especificado"}
+        Comentarios: ${comentariosReserva || "Sin comentarios"}
+      `.trim(),
+      state: "draft",
+    };
+    if (paymentTermId) orderVals.payment_term_id = paymentTermId;
+
+    const orderId = await jsonRpcCall("call", {
+      service: "object",
+      method: "execute_kw",
+      args: [
+        DB, uid, PASSWORD,
+        "sale.order", "create",
+        [orderVals]
+      ]
+    });
+
+    console.log("🧾 Cotización creada con ID:", orderId);
+
+    // ✅ Crear una línea de producto por el tour
+    const qty = Number(numeroPersonas) || 1;
+    const lineVals = {
+      order_id: orderId,
+      name: String(tourSeleccionado),
+      product_uom_qty: qty,
+      price_unit: 1, // TODO: reemplazar por el precio real del tour si lo tienes
+    };
+    console.log("🧱 Datos de línea de cotización:", lineVals);
+
+    await jsonRpcCall("call", {
+      service: "object",
+      method: "execute_kw",
+      args: [
+        DB, uid, PASSWORD,
+        "sale.order.line", "create",
+        [lineVals]
+      ]
+    });
+    console.log(`✅ Línea de producto añadida: ${tourSeleccionado} (${qty} personas)`);
+
+    console.log("✅ Cotización completada en Odoo.");
+
+    res.json({
+      exito: true,
+      mensaje: "Cotización creada correctamente",
+      cotizacion_id: orderId,
+      cliente_id: partnerId
+    });
+
+  } catch (error) {
+    console.error("❌ Error creando cotización:", error.message);
+    res.status(500).json({ exito: false, mensaje: error.message });
+  }
+});
+
+    // ============================
+    // Rutas de recuperación de contraseña
     // ============================
     this.app.post("/api/auth/olvide-contrasena", async (req, res) => {
       try {
@@ -224,9 +387,6 @@ class RutasAutenticacion {
       }
     });
 
-    // ============================
-    // Ruta para restablecer contraseña
-    // ============================
     this.app.post("/api/auth/restablecer-contrasena", async (req, res) => {
       try {
         const { token, nuevaContrasena } = req.body;

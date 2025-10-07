@@ -172,46 +172,79 @@ app.post("/api/contacto", async (req, res) => {
 })
 
 // �� RUTA DE RESERVA
-// =========================================================
-// 📩 RUTA DE RESERVA CON DATOS DE SESIÓN + INTEGRACIÓN ODOO
-// =========================================================
+// Ruta para procesar el formulario de reserva de tours. Valida los datos y envía un correo electrónico de confirmación.
+// 📦 DEPENDENCIAS NECESARIAS
+const fs = require("fs");
+const { fetch } = require("undici");
+
+// --- CONFIGURACIÓN ODOO ---
+const ODOO_URL = process.env.ODOO_URL;
+const DB = process.env.ODOO_DB;
+const USERNAME = process.env.ODOO_USER;
+const PASSWORD = process.env.ODOO_PASS;
+
+// --- FUNCIÓN GENÉRICA PARA LLAMADAS JSON-RPC ---
+async function jsonRpcCall(method, params) {
+  const resp = await fetch(ODOO_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method,
+      params,
+      id: Math.floor(Math.random() * 100000),
+    }),
+  });
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    throw new Error(`HTTP ${resp.status} ${resp.statusText} ${text}`);
+  }
+  const data = await resp.json();
+  if (data.error) {
+    throw new Error(data.error?.data?.message || data.error?.message || "Error en JSON-RPC");
+  }
+  return data.result;
+}
+
+// ========================================================
+// 📩 RUTA DE RESERVA (INTEGRADA CON ODOO + CORREO + JSON)
+// ========================================================
 app.post("/api/reserva", async (req, res) => {
   try {
     console.log("🧾 INICIANDO PROCESO DE RESERVA");
     console.log("📦 Datos recibidos:", req.body);
 
-    // ------------------------------
-    // 🧠 Toma los datos del body o de la sesión activa
-    // ------------------------------
-    const sessionUser = req.session?.usuario || {}; // si usás express-session
-    const nombreCompleto =
-      req.body.nombreCompleto?.trim() || sessionUser.nombre || "Usuario Anónimo";
-    const emailReserva =
-      req.body.emailReserva?.trim() || sessionUser.email || "sinemail@zenda.com";
-    const telefonoReserva =
-      req.body.telefonoReserva?.trim() || sessionUser.telefono || "00000000";
-    const fechaTour = req.body.fechaTour || new Date().toISOString().split("T")[0];
-    const tourSeleccionado =
-      req.body.tourSeleccionado || sessionUser.tourSeleccionado || "Tour sin especificar";
-    const numeroPersonas = req.body.numeroPersonas || 1;
-    const horarioPreferido = req.body.horarioPreferido || "";
-    const comentariosReserva = req.body.comentariosReserva || "";
+    const {
+      nombreCompleto,
+      emailReserva,
+      telefonoReserva,
+      fechaTour,
+      tourSeleccionado,
+      numeroPersonas,
+      horarioPreferido,
+      comentariosReserva,
+    } = req.body;
 
-    // ------------------------------
-    // ⚠️ Validar datos básicos
-    // ------------------------------
-    if (!emailReserva || !tourSeleccionado) {
-      console.log("❌ Datos insuficientes para crear la reserva.");
+    // 🔍 Validación de campos obligatorios
+    if (
+      !nombreCompleto ||
+      !emailReserva ||
+      !telefonoReserva ||
+      !fechaTour ||
+      !tourSeleccionado ||
+      !numeroPersonas
+    ) {
+      console.log("❌ Faltan campos obligatorios");
       return res.status(400).json({
         success: false,
-        mensaje: "Faltan datos esenciales para procesar la reserva (email o tour).",
+        mensaje: "Todos los campos obligatorios son requeridos",
       });
     }
 
-    // ------------------------------
-    // 🔗 Autenticarse en Odoo
-    // ------------------------------
-    console.log("🔗 Conectando con Odoo...");
+    // ========================================================
+    // 🧩 INTEGRACIÓN CON ODOO
+    // ========================================================
+    console.log("🔗 Conectando con Odoo en:", ODOO_URL);
     const uid = await jsonRpcCall("call", {
       service: "common",
       method: "login",
@@ -219,14 +252,11 @@ app.post("/api/reserva", async (req, res) => {
     });
 
     if (!uid || uid === false) {
-      throw new Error("No se pudo autenticar en Odoo. Revisá API Key o credenciales.");
+      throw new Error("No se pudo autenticar en Odoo. Revisa API Key o credenciales.");
     }
+    console.log("🔑 Autenticado en Odoo. UID:", uid);
 
-    console.log("🔑 Autenticado en Odoo UID:", uid);
-
-    // ------------------------------
-    // 👤 Buscar o crear el contacto
-    // ------------------------------
+    // --- Buscar o crear el contacto ---
     const partners = await jsonRpcCall("call", {
       service: "object",
       method: "execute_kw",
@@ -244,7 +274,7 @@ app.post("/api/reserva", async (req, res) => {
     let partnerId;
     if (partners.length > 0) {
       partnerId = partners[0].id;
-      console.log("✅ Contacto existente:", partnerId);
+      console.log("✅ Contacto existente encontrado:", partnerId);
     } else {
       partnerId = await jsonRpcCall("call", {
         service: "object",
@@ -258,12 +288,11 @@ app.post("/api/reserva", async (req, res) => {
           [{ name: nombreCompleto, email: emailReserva, phone: telefonoReserva }],
         ],
       });
-      console.log("✅ Nuevo contacto creado:", partnerId);
+      console.log("✅ Nuevo contacto creado en Odoo:", partnerId);
     }
 
-    // ------------------------------
-    // 💳 Términos de pago y cotización
-    // ------------------------------
+    // --- Crear cotización (sale.order) ---
+    const fechaVencimiento = fechaTour;
     const terminoPago = "Inmediato";
     let paymentTermId = null;
 
@@ -281,8 +310,6 @@ app.post("/api/reserva", async (req, res) => {
       ],
     });
     if (terms.length > 0) paymentTermId = terms[0].id;
-
-    const fechaVencimiento = fechaTour;
 
     const orderId = await jsonRpcCall("call", {
       service: "object",
@@ -306,14 +333,12 @@ app.post("/api/reserva", async (req, res) => {
 
     console.log("🧾 Cotización creada en Odoo con ID:", orderId);
 
-    // ------------------------------
-    // 🛍️ Crear línea de producto
-    // ------------------------------
+    // --- Crear líneas de productos ---
     const productos = [
       {
         nombre: tourSeleccionado,
         cantidad: parseInt(numeroPersonas),
-        precio: 45,
+        precio: 45, // puedes ajustar según tour
       },
     ];
 
@@ -337,50 +362,70 @@ app.post("/api/reserva", async (req, res) => {
           ],
         ],
       });
-      console.log(`✅ Línea agregada: ${p.nombre} (${p.cantidad} x ${p.precio})`);
+      console.log(`✅ Línea de producto añadida: ${p.nombre} (${p.cantidad} x ${p.precio})`);
     }
 
-    // ------------------------------
-    // ✉️ Enviar correo de confirmación
-    // ------------------------------
-    if (transportadorEmail) {
-      const imagenesDir = require("path").join(__dirname, "../imagenes");
-      const imagenAdjunta = require("path").join(imagenesDir, "golfito2.jpg");
+    console.log("🎉 Cotización creada correctamente en Odoo");
 
-      const opcionesEmail = {
-        from: "golfitotourstop@gmail.com",
-        to: emailReserva,
-        bcc: "golfitotourstop@gmail.com",
-        subject: `Confirmación de Reserva – ${tourSeleccionado}`,
-        html: `
-          <p>Hola <strong>${nombreCompleto}</strong>,</p>
-          <p>Tu reserva del tour <strong>${tourSeleccionado}</strong> fue registrada con éxito.</p>
-          <p><b>Fecha:</b> ${fechaTour}</p>
-          <p><b>Cantidad:</b> ${numeroPersonas}</p>
-          <p>Tu cotización en Odoo es #${orderId}</p>
-          <p>¡Gracias por confiar en Zenda Tours!</p>
-        `,
-        attachments: [
-          { filename: "golfito2.jpg", path: imagenAdjunta, cid: "imagenTour" },
-        ],
-      };
-
-      console.log("📧 Enviando correo de reserva...");
-      await transportadorEmail.sendMail(opcionesEmail);
-      console.log("✅ Correo enviado correctamente");
-    } else {
-      console.warn("⚠️ Transportador de email no configurado. No se envió correo.");
+    // ========================================================
+    // ✉️ ENVÍO DE CORREO (mantiene tu formato actual)
+    // ========================================================
+    if (!transportadorEmail) {
+      console.log("❌ Transportador de email no configurado");
+      return res.status(500).json({
+        success: false,
+        mensaje: "Servicio de email no configurado",
+      });
     }
 
-    // ------------------------------
-    // 💾 Guardar reserva localmente
-    // ------------------------------
-    const reservasPath = require("path").join(__dirname, "../datos/reservas.json");
+    const imagenesDir = path.join(__dirname, "../imagenes");
+    let imagenAdjunta = null;
+    const archivos = fs.readdirSync(imagenesDir);
+    const nombreTourNormalizado = tourSeleccionado.toLowerCase().replace(/\s+/g, "");
+    for (const archivo of archivos) {
+      const nombreArchivoNormalizado = archivo.toLowerCase().replace(/\s+/g, "");
+      if (nombreArchivoNormalizado.includes(nombreTourNormalizado)) {
+        imagenAdjunta = path.join(imagenesDir, archivo);
+        break;
+      }
+    }
+    if (!imagenAdjunta) imagenAdjunta = path.join(imagenesDir, "golfito2.jpg");
+
+    const opcionesEmail = {
+      from: "golfitotourstop@gmail.com",
+      to: emailReserva,
+      bcc: "golfitotourstop@gmail.com",
+      subject: `Confirmación de Reserva – ${tourSeleccionado}`,
+      html: `
+        <img src="cid:imagenTour" alt="Imagen del tour" style="max-width: 100%; border-radius: 10px; margin-bottom: 10px;"/>
+        <p>Estimado/a <strong>${nombreCompleto}</strong>,</p>
+        <p>Tu reserva en <strong>${tourSeleccionado}</strong> fue registrada exitosamente.</p>
+        <ul>
+          <li><strong>Fecha:</strong> ${fechaTour}</li>
+          <li><strong>Personas:</strong> ${numeroPersonas}</li>
+          <li><strong>Horario:</strong> ${horarioPreferido || "No especificado"}</li>
+        </ul>
+        <p>Referencia de cotización en Odoo: #${orderId}</p>
+        <p>Gracias por elegir <strong>Zenda Tours</strong>.</p>
+      `,
+      attachments: [
+        { filename: path.basename(imagenAdjunta), path: imagenAdjunta, cid: "imagenTour" },
+      ],
+    };
+
+    console.log("✉️ Enviando correo de reserva...");
+    const resultado = await transportadorEmail.sendMail(opcionesEmail);
+    console.log("✅ Correo enviado exitosamente:", resultado.messageId);
+
+    // ========================================================
+    // 💾 GUARDAR RESERVA EN ARCHIVO LOCAL
+    // ========================================================
+    const reservasPath = path.join(__dirname, "../datos/reservas.json");
     let reservas = [];
-    if (require("fs").existsSync(reservasPath)) {
+    if (fs.existsSync(reservasPath)) {
       try {
-        reservas = JSON.parse(require("fs").readFileSync(reservasPath, "utf8"));
-      } catch {
+        reservas = JSON.parse(fs.readFileSync(reservasPath, "utf8"));
+      } catch (e) {
         reservas = [];
       }
     }
@@ -397,20 +442,19 @@ app.post("/api/reserva", async (req, res) => {
       cotizacion_id: orderId,
       fechaCreacion: new Date().toISOString(),
     };
-
     reservas.push(nuevaReserva);
-    require("fs").writeFileSync(reservasPath, JSON.stringify(reservas, null, 2));
+    fs.writeFileSync(reservasPath, JSON.stringify(reservas, null, 2));
     console.log("💾 Reserva guardada en archivo local.");
 
-    // ------------------------------
-    // ✅ Respuesta final al frontend
-    // ------------------------------
+    // ========================================================
+    // ✅ RESPUESTA FINAL
+    // ========================================================
     res.json({
       success: true,
-      mensaje: "Reserva procesada correctamente y enviada a Odoo.",
+      mensaje: "Reserva registrada y enviada a Odoo exitosamente.",
       cotizacion_id: orderId,
-      cliente: { nombreCompleto, emailReserva },
     });
+
   } catch (error) {
     console.error("❌ ERROR COMPLETO:", error);
     res.status(500).json({

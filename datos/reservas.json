@@ -20,5 +20,16 @@
     "horarioPreferido": "10:00 AM",
     "comentariosReserva": "",
     "fechaCreacion": "2025-09-16T16:47:00.404Z"
+  },
+  {
+    "nombreCompleto": "Gabriela Tenorio",
+    "emailReserva": "wendypt2004@gmail.com",
+    "telefonoReserva": "123245678",
+    "fechaTour": "2025-10-23",
+    "tourSeleccionado": "Caminata al Bosque Nuboso",
+    "numeroPersonas": "7",
+    "horarioPreferido": "8:00 AM",
+    "comentariosReserva": "saasdsdasda",
+    "fechaCreacion": "2025-10-07T05:32:22.992Z"
   }
 ]

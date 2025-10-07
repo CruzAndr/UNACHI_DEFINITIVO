@@ -134,5 +134,13 @@
     "password": "$2b$10$hrxmArEfSEso2odut8JS5efezs/Cz4DezfelKWRFzgi9xKEGxEIn6",
     "fechaCreacion": "2025-10-05T22:21:17.719Z",
     "activo": true
+  },
+  "a@gmail.com": {
+    "id": 18,
+    "nombre": "AzerejeGANÓ.",
+    "email": "a@gmail.com",
+    "password": "$2b$10$5QZwpxwKOnV8yxElMrlfBezvpHkJEMXbXgxLl.FN51gCpOQUSfJlC",
+    "fechaCreacion": "2025-10-07T05:05:08.042Z",
+    "activo": true
   }
 }
