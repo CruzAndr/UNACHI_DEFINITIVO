@@ -142,5 +142,13 @@
     "password": "$2b$10$5QZwpxwKOnV8yxElMrlfBezvpHkJEMXbXgxLl.FN51gCpOQUSfJlC",
     "fechaCreacion": "2025-10-07T05:05:08.042Z",
     "activo": true
+  },
+  "samangom@gmail.com": {
+    "id": 19,
+    "nombre": "Samantha Gómez",
+    "email": "samangom@gmail.com",
+    "password": "$2b$10$EinRaifDyp0nZ1uper9J/O0IQ.BtcMXgrBFPSC5UiywdH.5xYNIHG",
+    "fechaCreacion": "2025-10-11T22:22:47.101Z",
+    "activo": true
   }
 }

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="assets/logo.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zenda Tours - Reserva tu Aventura</title>
     <link rel="stylesheet" href="css/styles.css">
@@ -24,15 +25,25 @@
     <div id="nav-placeholder"></div>
 
     <script>
-        fetch('includes/nav.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('nav-placeholder').innerHTML = data;
+    fetch('includes/nav.html')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('nav-placeholder').innerHTML = data;
 
-            // ahora que el nav + modal están cargados, inicializamos el auth
-            const auth = new SistemaAutenticacionMejorado();
-        });
+        // Activar menú hamburguesa
+        const hamburguesa = document.getElementById('hamburguesa');
+        const menu = document.getElementById('menuNavegacion');
+        if(hamburguesa && menu){
+            hamburguesa.addEventListener('click', () => {
+                menu.classList.toggle('active');
+            });
+        }
+
+        // Inicializar sistema de autenticación
+        const auth = new SistemaAutenticacionMejorado();
+    });
     </script>
+
 
     <!-- HERO con buscador -->
     <div class="hero-wrapper">
