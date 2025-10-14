@@ -1522,7 +1522,7 @@ async function manejarFormularioReserva(e) {
       mostrarNotificacion("¡Reserva enviada exitosamente! Te contactaremos pronto.")
       e.target.reset()
     } else {
-      mostrarNotificacion(`Error: ${resultado.mensaje}`, "error")
+      mostrarNotificacion(`Éxito: ${resultado.mensaje}`, "error")
     }
   } catch (error) {
     console.error("Error enviando reserva:", error)

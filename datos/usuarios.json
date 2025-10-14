@@ -150,5 +150,13 @@
     "password": "$2b$10$EinRaifDyp0nZ1uper9J/O0IQ.BtcMXgrBFPSC5UiywdH.5xYNIHG",
     "fechaCreacion": "2025-10-11T22:22:47.101Z",
     "activo": true
+  },
+  "fabialvi@gmail.com": {
+    "id": 20,
+    "nombre": "Fabricio Alvarado",
+    "email": "fabialvi@gmail.com",
+    "password": "$2b$10$adfCt9NRqzEWW6UYpJ0QWu05Ofr6R6jSNaS.h8IdsPk383526zVV2",
+    "fechaCreacion": "2025-10-14T04:45:23.284Z",
+    "activo": true
   }
 }
