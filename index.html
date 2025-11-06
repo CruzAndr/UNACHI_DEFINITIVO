@@ -332,6 +332,53 @@
     </footer>
 
 
+<style>
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  overflow-y: auto;
+}
+.contenido-modal {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.cerrar-modal {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+.lista-reservas {
+  margin-top: 15px;
+}
+.reserva-item {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  background: #fafafa;
+}
+</style>
+
+
+    <!-- === Modal Mis Reservas === -->
+    <div id="modalMisReservas" class="modal" style="display:none;">
+    <div class="contenido-modal">
+        <span class="cerrar-modal" onclick="cerrarModal('modalMisReservas')">&times;</span>
+        <h2>🧾 Mis Reservas</h2>
+        <div id="listaMisReservas" class="reservas-lista">
+        <p style="text-align:center; color:#555;">Cargando tus reservas...</p>
+        </div>
+    </div>
+    </div>
 
     <!-- Modal de Tour -->
     <div id="modalTour" class="modal">

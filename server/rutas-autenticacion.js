@@ -418,7 +418,83 @@ this.app.post("/api/reserva", async (req, res) => {
     });
 
     console.log("✅ Rutas de autenticación configuradas");
+  
+  
+  
+  // ============================
+// Nueva ruta: Obtener reservas por usuario
+// ============================
+  this.app.get("/api/mis-reservas", async (req, res) => {
+    try {
+      const { email } = req.query;
+      if (!email) {
+        return res.status(400).json({ exito: false, mensaje: "Falta el parámetro 'email'" });
+      }
+
+      console.log("🔍 Buscando reservas para:", email);
+
+      // Autenticación en Odoo
+      const uid = await jsonRpcCall("call", {
+        service: "common",
+        method: "login",
+        args: [DB, USERNAME, PASSWORD],
+      });
+
+      if (!uid) throw new Error("No se pudo autenticar en Odoo");
+
+      // Buscar contacto por email
+      const partners = await jsonRpcCall("call", {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          DB, uid, PASSWORD,
+          "res.partner", "search_read",
+          [[["email", "=", email]]],
+          { fields: ["id", "name", "email"], limit: 1 }
+        ]
+      });
+
+      if (!partners.length) {
+        return res.json({ exito: true, reservas: [] });
+      }
+
+      const partnerId = partners[0].id;
+
+      // Buscar cotizaciones (sale.order) de ese cliente
+      const orders = await jsonRpcCall("call", {
+        service: "object",
+        method: "execute_kw",
+        args: [
+          DB, uid, PASSWORD,
+          "sale.order", "search_read",
+          [[["partner_id", "=", partnerId]]],
+          { fields: ["name", "note", "create_date", "amount_total"] }
+        ]
+      });
+
+      console.log(`📦 ${orders.length} reservas encontradas para ${email}`);
+
+      res.json({
+        exito: true,
+        reservas: orders.map(o => ({
+          id: o.id,
+          nombre: o.name,
+          descripcion: o.note,
+          fecha: new Date(o.create_date).toLocaleDateString(),
+          total: o.amount_total,
+        }))
+      });
+
+    } catch (error) {
+      console.error("❌ Error al obtener reservas:", error.message);
+      res.status(500).json({ exito: false, mensaje: error.message });
+    }
+  });
+  
   }
 }
+
+
+
 
 module.exports = RutasAutenticacion;

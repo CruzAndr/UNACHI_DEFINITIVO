@@ -451,10 +451,61 @@ class SistemaAutenticacionMejorado {
     this.mostrarNotificacion("Función de perfil en desarrollo")
   }
 
-  verMisReservas() {
-    this.cerrarMenuUsuario()
-    this.mostrarNotificacion("Función de reservas en desarrollo")
+async verMisReservas() {
+  this.cerrarMenuUsuario();
+
+  // 1️⃣ Verificar si hay sesión activa
+  const usuario = this.usuarioActual;
+  if (!usuario || !usuario.email) {
+    this.mostrarNotificacion("Por favor inicia sesión para ver tus reservas", "error");
+    return;
   }
+
+  try {
+    // 2️⃣ Pedir reservas al servidor
+    const response = await fetch(`${this.baseURL}/api/mis-reservas?email=${encodeURIComponent(usuario.email)}`);
+    const data = await response.json();
+
+    if (!data.exito) throw new Error(data.mensaje || "Error al cargar reservas");
+
+    const contenedor = document.getElementById("listaMisReservas");
+    if (!contenedor) {
+      this.mostrarNotificacion("No se encontró el contenedor de reservas en el HTML", "error");
+      return;
+    }
+
+    contenedor.innerHTML = "";
+
+    if (data.reservas.length === 0) {
+      contenedor.innerHTML = `<p>No tienes reservas registradas todavía.</p>`;
+    } else {
+      data.reservas.forEach((r) => {
+        const div = document.createElement("div");
+        div.classList.add("reserva-item");
+        div.innerHTML = `
+          <strong>${r.nombre}</strong><br>
+          ${r.descripcion ? `<p>${r.descripcion}</p>` : ""}
+          <b>Fecha:</b> ${r.fecha}<br>
+          <b>Total:</b> ₡${r.total?.toLocaleString("es-CR") || "—"}
+        `;
+        contenedor.appendChild(div);
+      });
+    }
+
+    // 3️⃣ Mostrar modal
+    const modal = document.getElementById("modalMisReservas");
+    if (modal) {
+      modal.style.display = "block";
+      document.body.style.overflow = "hidden";
+    } else {
+      this.mostrarNotificacion("Reservas cargadas (falta modal en HTML)", "info");
+    }
+
+  } catch (error) {
+    console.error("❌ Error al cargar reservas:", error);
+    this.mostrarNotificacion("Error al cargar tus reservas", "error");
+  }
+}
 
   // Métodos de utilidad
   validarEmail(email) {
@@ -564,6 +615,67 @@ class SistemaAutenticacionMejorado {
     }
   }
 }
+
+// ✅ Inyectar modal "Mis Reservas" en páginas que no lo tengan
+document.addEventListener("DOMContentLoaded", () => {
+  // Evita duplicados si el modal ya existe (como en index.html)
+  if (document.getElementById("modalMisReservas")) return;
+
+  console.log("🧾 Modal de 'Mis Reservas' no encontrado, creando uno nuevo...");
+
+  const modal = document.createElement("div");
+  modal.innerHTML = `
+    <style>
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        overflow-y: auto;
+      }
+      .contenido-modal {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      }
+      .cerrar-modal {
+        float: right;
+        font-size: 24px;
+        cursor: pointer;
+      }
+      .lista-reservas {
+        margin-top: 15px;
+      }
+      .reserva-item {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        background: #fafafa;
+      }
+    </style>
+
+    <div id="modalMisReservas" class="modal" style="display:none;">
+      <div class="contenido-modal">
+        <span class="cerrar-modal" onclick="cerrarModal('modalMisReservas')">&times;</span>
+        <h2>🧾 Mis Reservas</h2>
+        <div id="listaMisReservas" class="lista-reservas">
+          <p style="text-align:center; color:#555;">Cargando tus reservas...</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  console.log("✅ Modal de 'Mis Reservas' insertado correctamente en el DOM");
+});
+
 
 // Inicializar sistema de autenticación mejorado
 console.log("🔧 DEBUG: Creando instancia del sistema de autenticación...")
