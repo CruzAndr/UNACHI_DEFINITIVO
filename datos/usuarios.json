@@ -158,5 +158,13 @@
     "password": "$2b$10$adfCt9NRqzEWW6UYpJ0QWu05Ofr6R6jSNaS.h8IdsPk383526zVV2",
     "fechaCreacion": "2025-10-14T04:45:23.284Z",
     "activo": true
+  },
+  "amahe@gmail.com": {
+    "id": 21,
+    "nombre": "Amalek Herra",
+    "email": "amahe@gmail.com",
+    "password": "$2b$10$TazXdVasHgD5sDDPJWxrS.jgd/Ch9ySsL7FyzOYbHtH1G2mmx5BNC",
+    "fechaCreacion": "2025-11-06T03:12:22.129Z",
+    "activo": true
   }
 }

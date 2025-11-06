@@ -946,6 +946,7 @@ let diapositivaActual = 0
 const totalDiapositivas = 4
 
 // ===== INICIALIZACIÓN =====
+if (typeof document !== "undefined") {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 Página cargada, inicializando...")
 
@@ -1213,7 +1214,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   console.log("✅ Inicialización completada")
-})
+});
+}
 
 // ===== NAVEGACIÓN =====
 function configurarNavegacion() {
@@ -1621,15 +1623,17 @@ function cerrarLightboxGaleria() {
 }
 
 // ===== FUNCIONES GLOBALES PARA COMPATIBILIDAD =====
-window.cambiarDiapositiva = cambiarDiapositiva
-window.irADiapositiva = irADiapositiva
-window.abrirDetallesTour = abrirDetallesTour
-window.desplazarASeccion = desplazarASeccion
-window.abrirModal = abrirModal
-window.cerrarModal = cerrarModal
-window.cerrarNotificacion = cerrarNotificacion
-window.datosTours = datosTours
-window.crearTarjetaTour = crearTarjetaTour
+if (typeof window !== "undefined") {
+  window.cambiarDiapositiva = cambiarDiapositiva
+  window.irADiapositiva = irADiapositiva
+  window.abrirDetallesTour = abrirDetallesTour
+  window.desplazarASeccion = desplazarASeccion
+  window.abrirModal = abrirModal
+  window.cerrarModal = cerrarModal
+  window.cerrarNotificacion = cerrarNotificacion
+  window.datosTours = datosTours
+  window.crearTarjetaTour = crearTarjetaTour
+}
 
 // ===== INTEGRACIÓN ODOO REGISTRO =====
 async function createOdooContactAndLead(userData) {
@@ -1705,3 +1709,9 @@ async function createOdooContactAndLead(userData) {
         return null;
     }
 }
+
+// ✅ Exportar solo si estamos en Node.js
+if (typeof module !== "undefined") {
+  module.exports = { datosTours };
+}
+

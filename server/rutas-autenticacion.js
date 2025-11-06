@@ -1,4 +1,5 @@
 const GestorUsuarios = require("./gestor-usuarios");
+const { datosTours } = require("../script");
 require("dotenv").config();
 const { fetch } = require("undici");
 
@@ -200,10 +201,7 @@ class RutasAutenticacion {
       }
     });
 
-    // ============================
-    // Nueva ruta: Crear cotización desde Reserva
-    // ============================
- // ============================
+// ============================
 // Nueva ruta: Crear cotización desde Reserva
 // ============================
 this.app.post("/api/reserva", async (req, res) => {
@@ -246,16 +244,14 @@ this.app.post("/api/reserva", async (req, res) => {
     if (!uid) throw new Error("No se pudo autenticar en Odoo");
     console.log("🔑 Autenticado en Odoo con UID:", uid);
 
-    // ✅ Buscar o crear cliente (res.partner) — usar kwargs en search_read
+    // ✅ Buscar o crear cliente (res.partner)
     const partners = await jsonRpcCall("call", {
       service: "object",
       method: "execute_kw",
       args: [
         DB, uid, PASSWORD,
         "res.partner", "search_read",
-        // args:
         [[["email", "=", emailReserva]]],
-        // kwargs:
         { fields: ["id", "name", "email"], limit: 1 }
       ]
     });
@@ -277,7 +273,7 @@ this.app.post("/api/reserva", async (req, res) => {
       console.log("✅ Nuevo contacto creado:", partnerId);
     }
 
-    // ✅ Buscar término de pago (opcional) — usar kwargs en search_read
+    // ✅ Buscar término de pago (opcional)
     let paymentTermId = null;
     try {
       const terms = await jsonRpcCall("call", {
@@ -299,6 +295,21 @@ this.app.post("/api/reserva", async (req, res) => {
     } catch (e) {
       console.warn("⚠️ No se pudieron obtener términos de pago:", e.message);
     }
+
+    // ✅ Obtener precio del tour desde la base local
+    const tour = datosTours.find(
+      (t) => t.nombre.toLowerCase().trim() === tourSeleccionado.toLowerCase().trim()
+    );
+
+    if (!tour) {
+      throw new Error(`No se encontró el tour "${tourSeleccionado}" en la base local`);
+    }
+
+    // Limpia el precio: "$45" → 45
+    const precioTour = Number(tour.precio.replace(/[^0-9.]/g, ""));
+    if (isNaN(precioTour)) throw new Error("El precio del tour no es válido");
+
+    console.log(`💲 Precio del tour "${tourSeleccionado}": ${precioTour}`);
 
     // ✅ Crear cotización (sale.order)
     const orderVals = {
@@ -327,13 +338,13 @@ this.app.post("/api/reserva", async (req, res) => {
 
     console.log("🧾 Cotización creada con ID:", orderId);
 
-    // ✅ Crear una línea de producto por el tour
+    // ✅ Crear una línea de producto por el tour con el precio real
     const qty = Number(numeroPersonas) || 1;
     const lineVals = {
       order_id: orderId,
       name: String(tourSeleccionado),
       product_uom_qty: qty,
-      price_unit: 1, // TODO: reemplazar por el precio real del tour si lo tienes
+      price_unit: precioTour, // 👈 Aquí usamos el precio real del tour
     };
     console.log("🧱 Datos de línea de cotización:", lineVals);
 
@@ -346,6 +357,7 @@ this.app.post("/api/reserva", async (req, res) => {
         [lineVals]
       ]
     });
+
     console.log(`✅ Línea de producto añadida: ${tourSeleccionado} (${qty} personas)`);
 
     console.log("✅ Cotización completada en Odoo.");
@@ -362,6 +374,7 @@ this.app.post("/api/reserva", async (req, res) => {
     res.status(500).json({ exito: false, mensaje: error.message });
   }
 });
+
 
     // ============================
     // Rutas de recuperación de contraseña
