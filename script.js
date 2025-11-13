@@ -928,27 +928,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 }
 
-// ===== NAVEGACIÓN =====
-function configurarNavegacion() {
-  const hamburguesa = document.getElementById("hamburguesa")
-  const menuNavegacion = document.getElementById("menuNavegacion")
-
-  if (hamburguesa && menuNavegacion) {
-    hamburguesa.addEventListener("click", () => {
-      menuNavegacion.classList.toggle("active")
-      hamburguesa.classList.toggle("active")
-    })
-  }
-
-  // Cerrar menú al hacer clic en un enlace
-  const enlaces = document.querySelectorAll(".nav-link")
-  enlaces.forEach((enlace) => {
-    enlace.addEventListener("click", () => {
-      menuNavegacion.classList.remove("active")
-      hamburguesa.classList.remove("active")
-    })
-  })
-}
 
 // ===== CARRUSEL =====
 function iniciarCarrusel() {

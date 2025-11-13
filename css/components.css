@@ -125,16 +125,3 @@ body.page-historia .btn-login {
   width: 16px;
 }
 
-.hamburger {
-  display: none;
-  flex-direction: column;
-  cursor: pointer;
-}
-
-.hamburger span {
-  width: 25px;
-  height: 3px;
-  background: var(--texto-oscuro);
-  margin: 3px 0;
-  transition: var(--transicion);
-}
