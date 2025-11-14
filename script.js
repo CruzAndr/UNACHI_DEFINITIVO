@@ -656,6 +656,28 @@ const datosTours = [
 let diapositivaActual = 0
 const totalDiapositivas = 4
 
+function configurarNavegacion() {
+  const hamburguesa = document.getElementById("hamburguesa")
+  const menuNavegacion = document.getElementById("menuNavegacion")
+
+  if (hamburguesa && menuNavegacion) {
+    hamburguesa.addEventListener("click", () => {
+      menuNavegacion.classList.toggle("active")
+      hamburguesa.classList.toggle("active")
+    })
+  }
+
+  // Cerrar el menú cuando se hace clic en un enlace
+  const enlaces = document.querySelectorAll(".nav-link")
+  enlaces.forEach((enlace) => {
+    enlace.addEventListener("click", () => {
+      menuNavegacion.classList.remove("active")
+      hamburguesa.classList.remove("active")
+    })
+  })
+}
+
+
 // ===== INICIALIZACIÓN =====
 if (typeof document !== "undefined") {
 document.addEventListener("DOMContentLoaded", () => {
@@ -912,17 +934,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== FORZAR VISUALIZACIÓN DE TOURS EN TODOS LOS GRIDS =====
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.tours-grid').forEach(grid => {
-      if (grid.children.length === 0) {
-        datosTours.slice(0, 8).forEach(tour => {
-          const tarjeta = crearTarjetaTour(tour);
-          grid.appendChild(tarjeta);
-        });
-      }
-    });
-  });
 
   console.log("✅ Inicialización completada")
 });
