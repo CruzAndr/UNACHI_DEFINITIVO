@@ -418,12 +418,33 @@ section h2 {
 
 @media (max-width: 700px) {
   .tour-card {
-    height: 340px;
-    min-width: 240px;
-    max-width: 240px;
-    flex: 0 0 240px;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: unset !important;
+    height: auto !important;
+    flex: unset !important;
   }
 }
+
+@media (max-width: 1000px) {
+  #resultadosBuscador .tours-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #resultadosBuscador .tours-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #resultadosBuscador .tours-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+
 
 /* CARRUSEL CORREGIDO */
 .carousel-container {
@@ -1975,9 +1996,87 @@ input[readonly] {
     grid-template-columns: 1fr;
   }
 
-  .tours-grid {
-    grid-template-columns: 1fr;
+  /* ===== Ajuste correcto de las tarjetas en móvil ===== */
+.tours-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem;
+    justify-content: center;
+    justify-items: center;
+}
+
+.tours-grid,
+#resultadosBuscador .tours-grid {
+    grid-template-columns: 1fr !important;
+}
+
+/* FORZAR 1 COLUMNA EN MÓVIL PARA TODO LO QUE SEA GRID DE TOURS */
+#resultadosBuscador > .tours-grid,
+#resultadosBuscador .tours-grid,
+.tours-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+}
+
+
+/* Que la tarjeta NUNCA recorte contenido */
+.tour-card {
+    display: flex;
+    flex-direction: column;
+    height: auto !important;       /* 🔥 que se expanda según su contenido */
+    min-height: 460px !important;  /* 🔥 puedes subirlo si hace falta */
+    padding-bottom: 1rem;
+}
+
+/* Asegurar que la info tenga espacio */
+.tour-card .tour-info {
+    flex-grow: 1 !important;
+}
+
+/* Mantener botón abajo SIEMPRE visible */
+.tour-card .tour-bottom {
+    margin-top: auto !important;
+    padding-top: 1rem;
+}
+
+
+/* Ajustar imagen para evitar alturas enormes */
+.tour-card img {
+    width: 100%;
+    height: 200px !important;      /* antes era gigante */
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+}
+
+/* Mantener botón SIEMPRE visible */
+.tour-card .tour-bottom {
+    margin-top: auto;              /* empuja boton hacia abajo */
+}
+
+  /* Romper reglas de styles.css */
+  #resultadosBuscador .tours-grid {
+      grid-template-columns: 1fr !important;
+      max-width: 100% !important;
+      width: 100% !important;
   }
+
+  #resultadosBuscador .tour-card {
+      width: 100% !important;
+  }
+  
+  /* Layout de footer de la tarjeta: precio arriba, botón abajo */
+.tour-footer {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+/* Botón ancho y centrado */
+.tour-footer .btn {
+  align-self: stretch;      /* ocupa todo el ancho disponible */
+  text-align: center;
+}
+
 
   .location-content {
     grid-template-columns: 1fr;
@@ -2100,6 +2199,19 @@ input[readonly] {
   .auth-tab.active {
     border-bottom-color: var(--color-primario);
     border-right-color: transparent;
+  }
+
+    #resultadosBuscador .tours-grid {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 1rem !important;
+    justify-items: center !important;
+  }
+
+  #resultadosBuscador .tour-card {
+    width: 100% !important;
+    max-width: 420px !important;  /* para que no se haga gigante */
   }
 }
 
@@ -2357,7 +2469,7 @@ textarea:focus-visible {
 
 #resultadosBuscador .tours-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr) !important; /*orden 3 resultados de búsqueda en 1 línea*/
+    grid-template-columns: repeat(3, 1fr); /*orden 3 resultados de búsqueda en 1 línea*/
     gap: 1.5rem;
     width: 100%;
     
@@ -2583,13 +2695,19 @@ textarea:focus-visible {
 }
 
 /* === Carrusel de Promociones centrado === */
+/* === Carrusel de Promociones centrado === */
 .promo-carousel-section {
   background: #f7faf7;
   padding: 40px 0 30px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;           /* 👈 centra el texto de toda la sección */
 }
+
+.promo-carousel-section .container {
+  max-width: 1200px;
+  margin: 0 auto;               /* 👈 centra el contenedor */
+  padding: 0 1rem;
+}
+
 .promo-carousel-section h2 {
   text-align: center;
   font-size: 2rem;
@@ -2648,9 +2766,10 @@ textarea:focus-visible {
   box-shadow: 0 4px 16px rgba(230,126,34,0.18);
 }
 .promo-carrusel .tour-card {
-  min-width: 260px;
-  max-width: 270px;
-  flex: 0 0 25%;
+  /* 4 en escritorio */
+  flex: 0 0 calc(25% - 1rem);
+  min-width: 250px;
+
   border: 2px solid #e67e22;
   box-shadow: 0 2px 12px rgba(230,126,34,0.07);
   transition: transform 0.2s, box-shadow 0.2s;
@@ -2663,32 +2782,49 @@ textarea:focus-visible {
   color: #e67e22;
   font-weight: bold;
 }
+/* 3 cards */
 @media (max-width: 1100px) {
   .promo-carrusel .tour-card {
-    flex: 0 0 33.33%;
+    flex: 0 0 calc(33.33% - 1rem);
     min-width: 220px;
-    max-width: 240px;
   }
 }
+
+/* 2 cards */
 @media (max-width: 800px) {
   .promo-carrusel .tour-card {
-    flex: 0 0 50%;
-    min-width: 180px;
-    max-width: 200px;
+    flex: 0 0 calc(50% - 1rem);
+    min-width: 220px;
   }
   .promo-carrusel-btn.prev { left: 0; }
   .promo-carrusel-btn.next { right: 0; }
 }
+/* 1 card */
 @media (max-width: 600px) {
   .promo-carrusel .tour-card {
-    flex: 0 0 90%;
-    min-width: 90vw;
-    max-width: 95vw;
+    flex: 0 0 100%;
+    min-width: 92vw;
   }
+
   .promo-carrusel-wrapper {
     padding: 0 0.5rem;
   }
 }
+/* Contenedor de la sección de promociones */
+.promo-carousel-section .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;     /* 🔥 centra todo el texto dentro, incluido el h2 */
+}
+
+/* Por si acaso, reforzamos el h2 */
+.promo-carousel-section h2 {
+  text-align: center;
+  width: 100%;
+  display: block;
+  margin: 0 auto 2rem auto;
+}
+
 
 /* === Carrusel de Fotos === */
 .foto-carousel-section {
@@ -2820,4 +2956,32 @@ textarea:focus-visible {
   white-space: normal;
   max-height: 3.2em;
   line-height: 1.6em;
+}
+
+/* ---- GRID RESPONSIVE DEL BUSCADOR ---- */
+#resultadosBuscador .tours-grid {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* escritorio */
+@media (min-width: 1101px) {
+    #resultadosBuscador .tours-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* tablets y pantallas medianas */
+@media (max-width: 1100px) {
+    #resultadosBuscador .tours-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* móvil */
+@media (max-width: 700px) {
+    #resultadosBuscador .tours-grid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -828,7 +828,18 @@ document.addEventListener("DOMContentLoaded", () => {
       promoCarrusel.appendChild(tarjeta);
     });
     const total = promos.length;
-    const visibles = 4;
+    let visibles = 4;
+
+function actualizarVisibles() {
+  if (window.innerWidth <= 600) visibles = 1;
+  else if (window.innerWidth <= 800) visibles = 2;
+  else if (window.innerWidth <= 1100) visibles = 3;
+  else visibles = 4;
+}
+
+actualizarVisibles();
+window.addEventListener("resize", actualizarVisibles);
+
     function mostrarPromos(idx) {
       const cards = promoCarrusel.querySelectorAll('.tour-card');
       cards.forEach((card, i) => {
