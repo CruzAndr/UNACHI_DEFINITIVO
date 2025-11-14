@@ -18,13 +18,25 @@
     <div id="nav-placeholder"></div>
 
     <script>
-        fetch('includes/nav.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('nav-placeholder').innerHTML = data;
+    fetch("includes/nav.html")
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById("nav-placeholder").innerHTML = html;
+
+        setTimeout(() => {
+            const hamburguesa = document.getElementById("hamburguesa");
+            const menu = document.getElementById("menuNavegacion");
+
+            if (hamburguesa && menu) {
+                hamburguesa.addEventListener("click", () => {
+                    menu.classList.toggle("active");
+                });
+            }
 
             const auth = new SistemaAutenticacionMejorado();
-        });
+
+        }, 0);
+    });
     </script>
 
     <!-- Hero de Playas -->

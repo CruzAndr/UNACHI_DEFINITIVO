@@ -31,14 +31,17 @@
         document.getElementById("nav-placeholder").innerHTML = html;
 
         setTimeout(() => {
-        const hamburguesa = document.getElementById("hamburguesa");
-        const menu = document.getElementById("menuNavegacion");
+            const hamburguesa = document.getElementById("hamburguesa");
+            const menu = document.getElementById("menuNavegacion");
 
-        if (hamburguesa && menu) {
-            hamburguesa.addEventListener("click", () => {
-            menu.classList.toggle("active");
-            });
-        }
+            if (hamburguesa && menu) {
+                hamburguesa.addEventListener("click", () => {
+                    menu.classList.toggle("active");
+                });
+            }
+
+            const auth = new SistemaAutenticacionMejorado();
+
         }, 0);
     });
     </script>
