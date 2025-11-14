@@ -1912,34 +1912,49 @@ input[readonly] {
 /* Responsive */
 @media (max-width: 768px) {
 
-  /* Mostrar hamburguesa */
   .hamburger {
     display: flex !important;
+    z-index: 99999;
   }
 
-  /* Ocultar menú horizontal */
   .nav-menu {
-    display: none !important;
+    display: none;
     flex-direction: column;
+
     position: fixed;
-    top: 70px;
+    top: 0;
     left: 0;
-    width: 100%;
-    height: calc(100vh - 70px);
-    background: var(--blanco);
-    padding: 2rem 0;
-    box-shadow: var(--sombra);
-    z-index: 999;
+    width: 100%;        /* 👈 que ocupe TODO */
+    height: 100vh;      /* 👈 que cubra todo */
+
+    background: #ffffff;
+    padding: 120px 2rem 2rem;  /* 👈 Top para navbar + padding lateral */
+    gap: 1.5rem;               /* 👈 espacio entre links */
+
+    overflow-y: auto;
+    z-index: 99998;
+
+    box-shadow: 0 0 20px rgba(0,0,0,0.1); /* opcional */
   }
 
-  /* Mostrar menú al abrir */
   .nav-menu.active {
     display: flex !important;
   }
 
+  /* Links más grandes y legibles */
+  .nav-link {
+    font-size: 1.2rem;
+    width: 100%;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee; /* separación visual */
+  }
 
+  /* Botón login */
   .nav-menu .btn-login {
+    width: 100%;
     margin-top: 2rem;
+    padding: 1rem;
+    font-size: 1.1rem;
   }
 
   .hero h1 {
